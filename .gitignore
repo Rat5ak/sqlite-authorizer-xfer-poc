@@ -1,0 +1,5 @@
+/build/
+/run-output/
+*.exe
+*.obj
+*.o

