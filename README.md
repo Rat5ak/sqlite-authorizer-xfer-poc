@@ -6,7 +6,7 @@ The bug is in the fast path for compatible `INSERT INTO dst SELECT * FROM src` s
 
 This is not an RCE claim. It is a sandbox / policy bypass for apps that accept less-trusted SQL and rely on SQLite's authorizer as the boundary. In that shape, a direct read from a protected table can be blocked, while the same rows are copied into an attacker-readable table and read from there.
 
-## Status
+## Status 
 
 Upstream public bug: https://sqlite.org/bugs/info/2026-05-21T03:31:22Z
 
