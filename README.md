@@ -28,7 +28,7 @@ Fixed trunk snapshot:
 2026-05-21 15:14:35 9ac4a33a2932d353c4871fd8e09c10addf827f1fc3fc9380037d738cf2cd0353
 ```
 
-The old vulnerable build prints `RESULT=VULNERABLE_REMOTE_ADMIN_BREAKIN`. The fixed trunk build prints `RESULT=SAFE_NO_ADMIN_BREAKIN`.
+In the included synthetic token demo, the 3.53.1 build copies denied rows into the attacker-readable table. The fixed trunk build denies the copy.
 
 ## Files
 
@@ -36,7 +36,7 @@ The old vulnerable build prints `RESULT=VULNERABLE_REMOTE_ADMIN_BREAKIN`. The fi
 
 `validate.sh` - builds the vendored SQLite 3.53.1 and trunk snapshots, then runs the checks.
 
-`evidence/remote-admin-breakin-validation.txt` - captured output for the admin-token theft demo.
+`evidence/remote-admin-breakin-validation.txt` - captured output for the synthetic token-reuse demo.
 
 `evidence/remote-xfer-exfil-validation.txt` - smaller direct xfer exfil demo.
 
@@ -66,7 +66,9 @@ gcc -O2 -g -DSQLITE_THREADSAFE=0 \
 ./poc-old breakin
 ```
 
-Expected vulnerable output includes:
+The `breakin` mode is just a small impact demo around a synthetic bearer token. It is not claiming a default remote SQLite admin compromise.
+
+Expected vulnerable output includes copied synthetic secrets:
 
 ```text
 DIRECT_ADMIN_TOKEN_READ_BLOCKED=yes
@@ -74,19 +76,15 @@ XFER_COPY_SUCCEEDED=yes
 STOLEN_ADMIN_SESSION=sess_live_admin_7cd4eec7b9f241b4b5b8
 STOLEN_PAYMENT_KEY=sk_live_poc_51NxSQLiteAuthorizerBypass
 STOLEN_CLOUD_DEPLOY_KEY=AKIAIOSFODNN7EXAMPLE:wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
-ADMIN_BREAKIN=granted
-RESULT=VULNERABLE_REMOTE_ADMIN_BREAKIN
 ```
 
-Expected fixed trunk output includes:
+Expected fixed trunk output includes the denied copy:
 
 ```text
 XFER_COPY_SUCCEEDED=no
 STOLEN_ADMIN_SESSION=no
 STOLEN_PAYMENT_KEY=no
 STOLEN_CLOUD_DEPLOY_KEY=no
-ADMIN_BREAKIN=no
-RESULT=SAFE_NO_ADMIN_BREAKIN
 ```
 
 ## CVSS guess
