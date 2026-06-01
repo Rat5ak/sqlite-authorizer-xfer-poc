@@ -1,6 +1,6 @@
 # SQLite authorizer xfer bypass PoC
 
-Private proof package for a SQLite authorizer bypass in the xfer optimization.
+SQLite authorizer bypass in the xfer optimization.
 
 ## Claim
 
